@@ -74,7 +74,7 @@ class SheetCut extends Component {
       tempConfigs[i]['waste'] = event.target.value
 
     } else {
-      tempConfigs[i][`cut${i}`] = event.target.value
+      tempConfigs[i][`cut${j}`] = event.target.value
     }
     this.setState({configs: tempConfigs})
   }
