@@ -1,0 +1,21 @@
+.container {
+  width: 80%;
+  background: #eee;
+  border-radius: 10px;
+  padding: 20px;
+  margin: auto;
+  margin-top: 20px;
+  border: 0.5px lightgray solid;
+}
+
+.text-field-row {
+  margin: 20px;
+  align-self: center
+}
+
+.cut-row {
+  display: flex;
+  align-content: center;
+  vertical-align: middle;
+  justify-content: center;
+}
