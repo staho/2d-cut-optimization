@@ -15,8 +15,27 @@ import './SheetCut.css'
 class SheetCut extends Component {
   constructor(props) {
     super(props)
-    this.state = {}
+    this.state = {
+      configs: []
+    }
   }
+
+  static getDerivedStateFromProps = (nextProps, prevState) => {
+    if(prevState.configs.length === 0) {
+      let newConfigs = []
+      let conf1 = {}
+      nextProps.data.cuts.forEach((cut, i) => {
+        conf1[`cut${i}`] = ""
+      })
+      conf1["waste"] = ""
+      newConfigs.push(conf1)
+      return {
+        configs: newConfigs
+      }
+    }
+    return null
+  }
+
 
 
   calculateWaste = () => {
@@ -48,33 +67,48 @@ class SheetCut extends Component {
     }
   }
 
+  //Todo: changing state of cuts and adding new config
+  onCutQuantityChange = (i, j) => {
+    // this.setState
+  }
+
+  newRow = (i, j) => {
+    return (
+        <TableRowColumn key={`row-column-cut-${i}-${j}`}>
+          <TextField
+                id={`cut-quantity-${i}-${j}`}
+                style={{ width: '60px' }}
+                inputStyle={{ textAlign: 'center' }}
+                // data-message={i}
+                value={this.state.configs[i][`cut${j}`]}
+                onChange={this.onCutQuantityChange(i, j)}
+              />
+        </TableRowColumn>
+      )
+  }
+
   render() {
-    const createTable = () => {
-      const table = []
-      this.props.data.cuts.forEach((cut, i) => {
-        table.push(<TableRow key={i}>
-          <TableRowColumn>{i}</TableRowColumn>
-          <TableRowColumn>
-            {cut.width}
-          </TableRowColumn>
-          <TableRowColumn>
-            {cut.height}
-          </TableRowColumn>
-          <TableRowColumn>
-            <TextField
-              id='cut-quantity'
-              style={{ width: '60px' }}
-              inputStyle={{ textAlign: 'center' }}
-              data-message={i}
-              defaultValue={cut.nInSheet ? cut.nInSheet : null}
-              onChange={this.onCutQuantityInSheetChanged(cut)}
-            />
-          </TableRowColumn>
+   
+    const createHeaders = () => {
+      return this.props.data.cuts.map((cut, i) => {
+        return <TableHeaderColumn key={`header-cut-${i}`}>{`Ilość cięcia ${i}`}</TableHeaderColumn>
+      })
+    }
 
-        </TableRow>)
-      });
+    const createTableNew = () => {
 
-      return table
+      return this.state.configs.map((config, i) => {
+        let rowColumns = [], j =0
+        rowColumns.push(<TableRowColumn key={`row-column-cut-id${i}`}>{i}</TableRowColumn>)
+
+        for (let property in config) {
+          if (config.hasOwnProperty(property)) {
+              rowColumns.push(this.newRow(i,j))
+          }
+          j++
+      }
+      return (<TableRow key={i}>{rowColumns}</TableRow>)
+      })
     }
 
     return (
@@ -88,13 +122,13 @@ class SheetCut extends Component {
           >
             <TableRow>
               <TableHeaderColumn>ID</TableHeaderColumn>
-              <TableHeaderColumn>Szerokość</TableHeaderColumn>
-              <TableHeaderColumn>Wysokość</TableHeaderColumn>
-              <TableHeaderColumn>Ilość w arkuszu</TableHeaderColumn>
+                {createHeaders()}
+              <TableHeaderColumn>Odpad</TableHeaderColumn>
+              
             </TableRow>
           </TableHeader>
           <TableBody displayRowCheckbox={false}>
-            {createTable()}
+            {createTableNew()}
           </TableBody>
         </Table>
       </div>

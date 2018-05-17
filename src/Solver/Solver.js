@@ -31,6 +31,10 @@ class Solver extends React.Component {
     }
 
     render() {
+        if(this.props.model) {
+            console.log(this.props.model)
+        }
+
         return(
             <div>
 

@@ -6,18 +6,23 @@ import Solver from './Solver/Solver'
 import Configurator from './Configurator/Configurator'
 
 class App extends Component {
+  constructor(props) {
+    super(props)
+    this.state = {
+      model: undefined
+    }
+  }
+
 
   onSubmit = (result) => {
-    ////
-    // BIERZ I RÓB Z TYM CO CHCESZ 🤮
-    ////
+   this.setState({model: result})
     console.log(result)
   }
 
   render() {
     return (
       <div className="App">
-        <Solver />
+        <Solver model={this.state.result}/>
         <MuiThemeProvider>
           <div>
             <Configurator onSubmit={this.onSubmit}></Configurator>
