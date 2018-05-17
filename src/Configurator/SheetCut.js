@@ -68,20 +68,26 @@ class SheetCut extends Component {
   }
 
   //Todo: changing state of cuts and adding new config
-  onCutQuantityChange = (i, j) => {
-    // this.setState
+  onCutQuantityChange = (event, i, j, waste) => {
+    let tempConfigs = [...this.state.configs]
+    if(waste) {
+      tempConfigs[i]['waste'] = event.target.value
+
+    } else {
+      tempConfigs[i][`cut${i}`] = event.target.value
+    }
+    this.setState({configs: tempConfigs})
   }
 
-  newRow = (i, j) => {
+  newRow = (i, j, waste) => {
     return (
         <TableRowColumn key={`row-column-cut-${i}-${j}`}>
           <TextField
                 id={`cut-quantity-${i}-${j}`}
                 style={{ width: '60px' }}
                 inputStyle={{ textAlign: 'center' }}
-                // data-message={i}
-                value={this.state.configs[i][`cut${j}`]}
-                onChange={this.onCutQuantityChange(i, j)}
+                value={waste ? this.state.configs[i][`waste`] : this.state.configs[i][`cut${j}`]}
+                onChange={(value) => this.onCutQuantityChange(value, i, j, waste)}
               />
         </TableRowColumn>
       )
@@ -103,7 +109,7 @@ class SheetCut extends Component {
 
         for (let property in config) {
           if (config.hasOwnProperty(property)) {
-              rowColumns.push(this.newRow(i,j))
+              rowColumns.push(this.newRow(i,j, property === 'waste'))
           }
           j++
       }
