@@ -23,7 +23,8 @@ class Configurator extends Component {
         wasteCost: null,
       },
       cuts: [],
-      sheetCut: {},
+      configs: null,
+      wastes: null,
     }
   }
 
@@ -38,21 +39,23 @@ class Configurator extends Component {
         ...value
       }
     }), () => {
-      console.log(this.state.sheet)
+      // console.log(this.state.sheet)
     })
   }
 
   cutsHandler = value => {
     this.setState({ cuts: value }, () => {
-      console.log(this.state.cuts)
+      // console.log(this.state.cuts)
     })
   }
 
-  sheetCutHandler = value => {
-    this.setState({ sheetCut: value }, () => {
-      console.log(this.state.sheetCut)
+  sheetCutsHandler = value => {
+    this.setState({ configs: value.configs, wastes: value.wastes }, () => {
+      // console.log(this.state.configs)
     })
   }
+
+
 
   getSheetCutData = () => {
     return {
@@ -65,7 +68,8 @@ class Configurator extends Component {
     const result = {
       sheet: this.state.sheet,
       cuts: this.state.cuts,
-      sheetCuts: this.state.sheetCut,
+      configs: this.state.configs,
+      wastes: this.state.wastes.filter(value => value),
     }
 
     this.props.onSubmit(result)
@@ -90,7 +94,8 @@ class Configurator extends Component {
         break
       case 2:
         stepView = <div>
-          <SheetCut cutsHandler={this.sheetCutHandler} data={this.getSheetCutData()}></SheetCut>
+          <SheetCut sheetCutsHandler={this.sheetCutsHandler} data={this.getSheetCutData()}
+            defaultData={{ configs: this.state.configs, wastes: this.state.wastes }}></SheetCut>
         </div>
         break
       default:

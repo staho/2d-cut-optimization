@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import DropDownMenu from 'material-ui/DropDownMenu';
 import MenuItem from 'material-ui/MenuItem';
 import TextField from 'material-ui/TextField'
+import update from 'react-addons-update'
 import {
   Table,
   TableBody,
@@ -16,105 +17,239 @@ class SheetCut extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      configs: []
+      cuts: [],
+      configs: [],
+      wastes: [0],
     }
   }
 
-  static getDerivedStateFromProps = (nextProps, prevState) => {
-    if(prevState.configs.length === 0) {
-      let newConfigs = []
-      let conf1 = {}
-      nextProps.data.cuts.forEach((cut, i) => {
-        conf1[`cut${i}`] = ""
+  componentDidMount() {
+
+    if (this.props.defaultData.configs && this.props.defaultData.wastes) {
+      this.setState({
+        configs: this.props.defaultData.configs,
+        wastes: this.props.defaultData.wastes
+      }, () => {
+        this.state.configs.forEach((config, index) => {
+          if (index !== this.state.configs.length - 1) {
+            this.calculateWaste(index)
+          }
+        })
       })
-      conf1["waste"] = ""
-      newConfigs.push(conf1)
-      return {
-        configs: newConfigs
+    } else {
+      if (this.props.data.cuts.length > 0) {
+        const configs = this.props.data.cuts.map((cut, index) => {
+          return {
+            cut: cut,
+          }
+        })
+        this.setState({
+          configs: [
+            ...this.state.configs,
+            configs
+          ]
+        }, () => {
+          // console.log(this.state.configs)
+        })
       }
     }
-    return null
+
+    if (this.props.data.cuts.length > 0) { this.setState({ cuts: this.props.data.cuts }) }
+    if (this.props.data.sheet) { this.setState({ sheet: this.props.data.sheet }) }
   }
 
 
+  isEmpty = obj => {
+    return Object.keys(obj).length === 0 && obj.constructor === Object
+  }
 
-  calculateWaste = () => {
-    let cuts = this.props.data.cuts
-    cuts = cuts.filter(cut => {
-      return cut.hasOwnProperty('nInSheet') && cut.nInSheet !== "" && cut.nInSheet !== 0
+
+  isRowEmpty = arr => {
+
+    for (let i = 0; i < arr.length; i++) {
+      if (arr[i].hasOwnProperty('nInSheet')) { return false }
+    }
+
+    return true
+  }
+
+  getPayload = () => {
+    return { configs: this.state.configs, wastes: this.state.wastes }
+  }
+
+
+  deleteConfigElemProperty = (index, i, propName) => {
+
+    const configs = this.state.configs.slice()
+    const config = configs[index].slice()
+    const elem = Object.assign({}, config[i])
+    delete elem[propName]
+    config[i] = elem;
+    configs[index] = config
+
+
+    this.setState({ configs: configs }, () => {
+      this.calculateWaste(index)
+      this.props.sheetCutsHandler(this.getPayload())
+    });
+  }
+
+
+  updateConfigElem = (index, i, propName, value) => {
+
+    const configs = this.state.configs.slice()
+    const config = configs[index].slice()
+    const elem = Object.assign({}, config[i],
+      { [propName]: value }
+    );
+    config[i] = elem
+    configs[index] = config
+
+
+    this.setState({ configs: configs }, () => {
+      this.calculateWaste(index)
+      this.props.sheetCutsHandler(this.getPayload())
     })
-    const sheet = this.props.data.sheet
+  }
+
+
+  pushEmptyConfig = () => {
+
+    const initialArr = this.state.cuts.map(cut => {
+      return {
+        cut: cut,
+      }
+    })
+
+
+    this.setState(prevState => {
+      return {
+        configs: [...prevState.configs, initialArr]
+      }
+    }, () => {
+      this.props.sheetCutsHandler(this.getPayload())
+    })
+
+    this.setState(prevState => {
+      return { wastes: [...prevState.wastes, null] }
+    })
+  }
+
+
+  removeConfig = index => {
+
+    this.setState(prevState => ({
+      configs: update(prevState.configs, { $splice: [[index, 1]] })
+    }), () => {
+      this.props.sheetCutsHandler(this.getPayload())
+      this.forceUpdate()
+    })
+
+    this.setState(prevState => ({
+      wastes: update(prevState.wastes, { $splice: [[index, 1]] })
+    }))
+  }
+
+
+  calculateWaste = index => {
+
+    const sheet = this.state.sheet
+    const config = this.state.configs[index]
+
 
     let cutsArea = 0
     let sheetArea = sheet.width * sheet.height
 
-    cuts.forEach(cut => {
-      if (cut.hasOwnProperty('nInSheet')) {
-        cutsArea += (cut.width * cut.height) * cut.nInSheet
+
+    config.forEach(obj => {
+      if (obj.hasOwnProperty('nInSheet')) {
+        cutsArea += (obj.cut.width * obj.cut.height) * obj.nInSheet
       }
     })
 
-    const waste = sheetArea - cutsArea
-    console.log(`WASTE: ${waste}`)
+    const waste = (sheetArea - cutsArea) * sheet.wasteCost
 
-    this.props.cutsHandler({ cuts: cuts, waste: waste })
+    const wastes = this.state.wastes.slice()
+    wastes[index] = waste
+    this.setState({ wastes: wastes }, () => {
+      // console.log(this.state.wastes)
+    })
+
   }
 
-  onCutQuantityInSheetChanged = (cut) => {
-    return e => {
-      cut.nInSheet = e.target.value
-      this.calculateWaste()
-    }
-  }
 
-  //Todo: changing state of cuts and adding new config
-  onCutQuantityChange = (event, i, j, waste) => {
-    let tempConfigs = [...this.state.configs]
-    if(waste) {
-      tempConfigs[i]['waste'] = event.target.value
+  onCutnInSheetChanged = (e, index, i) => {
 
+    const value = e.target.value
+
+
+    if (value === "") {
+      this.deleteConfigElemProperty(index, i, 'nInSheet')
     } else {
-      tempConfigs[i][`cut${j}`] = event.target.value
+      this.updateConfigElem(index, i, 'nInSheet', value)
     }
-    this.setState({configs: tempConfigs})
+
+    if (index === this.state.configs.length - 1) {
+      this.pushEmptyConfig()
+    }
   }
 
-  newRow = (i, j, waste) => {
-    return (
-        <TableRowColumn key={`row-column-cut-${i}-${j}`}>
-          <TextField
-                id={`cut-quantity-${i}-${j}`}
-                style={{ width: '60px' }}
-                inputStyle={{ textAlign: 'center' }}
-                value={waste ? this.state.configs[i][`waste`] : this.state.configs[i][`cut${j}`]}
-                onChange={(value) => this.onCutQuantityChange(value, i, j, waste)}
-              />
-        </TableRowColumn>
-      )
+
+  onTextFieldBlur = (e, index) => {
+
+    if (this.isRowEmpty(this.state.configs[index])) {
+      this.removeConfig(index)
+    }
   }
+
+
 
   render() {
-   
+
     const createHeaders = () => {
-      return this.props.data.cuts.map((cut, i) => {
-        return <TableHeaderColumn key={`header-cut-${i}`}>{`Ilość cięcia ${i}`}</TableHeaderColumn>
+      return this.state.cuts.map((cut, index) => {
+        return <TableHeaderColumn key={index}>
+          {`${cut.width}x${cut.height}`}
+        </TableHeaderColumn>
       })
+
     }
 
-    const createTableNew = () => {
+    const createTable = () => {
 
-      return this.state.configs.map((config, i) => {
-        let rowColumns = [], j =0
-        rowColumns.push(<TableRowColumn key={`row-column-cut-id${i}`}>{i}</TableRowColumn>)
+      const table = []
+      for (let i = 0; i < this.state.configs.length; i++) {
+        let row = [
+          <TableRowColumn key={`id-${i}`}>{i}</TableRowColumn>
+        ]
 
-        for (let property in config) {
-          if (config.hasOwnProperty(property)) {
-              rowColumns.push(this.newRow(i,j, property === 'waste'))
+        const cutsTextFields = this.state.configs[i].map((obj, index) => {
+          return (
+            <TableRowColumn key={index}>
+              <TextField
+                id={`cut-n-${index}`}
+                style={{ width: '60px' }}
+                inputStyle={{ textAlign: 'center' }}
+                onBlur={event => this.onTextFieldBlur(event, i)}
+                onChange={event => this.onCutnInSheetChanged(event, i, index)}
+                value={this.state.configs[i][index].nInSheet ?
+                  this.state.configs[i][index].nInSheet : ""}
+              />
+            </TableRowColumn>
+          )
+        })
+
+        row.push(...cutsTextFields)
+        row.push(<TableRowColumn key={`waste-${i}`}>
+          {this.state.wastes[i] ?
+            `${this.state.wastes[i]} zł` :
+            ""
           }
-          j++
+        </TableRowColumn>)
+        table.push(row)
       }
-      return (<TableRow key={i}>{rowColumns}</TableRow>)
-      })
+
+      return table
     }
 
     return (
@@ -128,13 +263,17 @@ class SheetCut extends Component {
           >
             <TableRow>
               <TableHeaderColumn>ID</TableHeaderColumn>
-                {createHeaders()}
+              {createHeaders()}
               <TableHeaderColumn>Odpad</TableHeaderColumn>
-              
             </TableRow>
           </TableHeader>
           <TableBody displayRowCheckbox={false}>
-            {createTableNew()}
+
+            {createTable().map((row, index) => {
+              return <TableRow key={index}>
+                {row}
+              </TableRow>
+            })}
           </TableBody>
         </Table>
       </div>

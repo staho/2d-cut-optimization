@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import './Sheet.css'
 import TextField from 'material-ui/TextField'
 import Divider from 'material-ui/Divider'
+import DropDownMenu from 'material-ui/DropDownMenu';
+import MenuItem from 'material-ui/MenuItem';
 
 class Sheet extends Component {
   constructor(props) {
@@ -35,9 +37,18 @@ class Sheet extends Component {
   render() {
     return (
       <div className='container'>
-        <h3>Podaj wymiary arkusza:</h3>
+        <DropDownMenu value={1} onChange={this.handleChange}>
+          <MenuItem value={1} primaryText="Arkusz 1" />
+        </DropDownMenu>
         <div className='sheet-container-upper'>
-          <div className='sheet'>Arkusz</div>
+          <div className='sheet'>
+
+            {
+              this.props.defaultData.width || this.props.defaultData.height ?
+                `${this.props.defaultData.width} x ${this.props.defaultData.height}` :
+                'Podaj wymiary'
+            }
+          </div>
           <TextField
             id='sheet-height'
             className='sheet-input-right'

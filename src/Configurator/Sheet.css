@@ -41,6 +41,8 @@ input {
   box-shadow: 0px 0px 5px grey;
   margin-left: 30px;
   color: #00BCD4;
+  overflow: hidden;
+  font-size: 90%;
 }
 
 .sheet-input-right {

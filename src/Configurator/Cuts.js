@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import TextField from 'material-ui/TextField'
+import update from 'react-addons-update'
 import {
   Table,
   TableBody,
@@ -14,111 +15,146 @@ class Cuts extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      nCuts: 0,
+      cuts: [{}],
     }
-    this.cuts = []
   }
 
   componentDidMount() {
+
     if (this.props.defaultData.length > 0) {
-      this.cuts = this.props.defaultData
-      this.setState({ nCuts: this.props.defaultData.length })
+      this.setState({ cuts: this.props.defaultData })
     }
   }
+
 
   isEmpty = obj => {
     return Object.keys(obj).length === 0 && obj.constructor === Object
   }
 
-  adjustNumberOfRows = (cut) => {
-    const index = this.cuts.indexOf(cut)
 
-    if (this.state.nCuts !== this.cuts.length) {
-      this.setState({ nCuts: this.cuts.length })
-    }
+  deleteCutProperty = (index, propName) => {
+
+    const cuts = this.state.cuts.slice()
+    const cut = Object.assign({}, this.state.cuts[index])
+    delete cut[propName]
+    cuts[index] = cut;
+
+
+    this.setState({ cuts: cuts }, () => {
+      this.props.cutsHandler(this.state.cuts)
+    });
   }
 
-  onCutWidthChanged = e => {
-    const value = e.target.value
-    const index = Number(e.target.dataset.message)
 
-    if (this.cuts[index] !== undefined) {
-      if (value === "") {
-        delete this.cuts[index].width
-        if (index === this.cuts.length - 1 && index !== 0 && this.isEmpty(this.cuts[index])) {
-          this.cuts.splice(index, 1)
-        }
-      } else {
-        this.cuts[index].width = value
+  pushEmptyCut = () => {
+
+    this.setState(prevState => {
+      return {
+        cuts: [...prevState.cuts, {}]
       }
-    } else {
-      this.cuts.push({ width: value })
-    }
-
-    this.props.cutsHandler(this.cuts)
-    this.adjustNumberOfRows(this.cuts[index])
+    }, () => {
+      this.props.cutsHandler(this.state.cuts)
+    })
   }
 
-  onCutHeightChanged = e => {
+
+  updateCut = (index, propName, value) => {
+
+    const cuts = this.state.cuts.slice()
+    const cut = Object.assign({}, this.state.cuts[index],
+      { [propName]: value }
+    );
+    cuts[index] = cut;
+
+
+    this.setState({ cuts: cuts }, () => {
+      this.props.cutsHandler(this.state.cuts)
+    })
+  }
+
+
+  removeCut = index => {
+
+    this.setState(prevState => ({
+      cuts: update(prevState.cuts, { $splice: [[index, 1]] })
+    }), () => {
+      this.props.cutsHandler(this.state.cuts)
+      this.forceUpdate()
+    })
+  }
+
+
+  onCutWidthChanged = (e, index) => {
+
     const value = e.target.value
-    const index = Number(e.target.dataset.message)
 
-    if (this.cuts[index] !== undefined) {
-      if (value === "") {
-        delete this.cuts[index].height
-        console.log(typeof (index), typeof (this.cuts.length - 1))
-
-        if (index === this.cuts.length - 1 && index !== 0 && this.isEmpty(this.cuts[index])) {
-          this.cuts.slice(index, 1)
-        }
-      } else {
-        this.cuts[index].height = value
-      }
+    if (value === "") {
+      this.deleteCutProperty(index, 'width')
     } else {
-      this.cuts.push({ height: value })
+      this.updateCut(index, 'width', value)
     }
 
-    this.props.cutsHandler(this.cuts)
-    this.adjustNumberOfRows(this.cuts[index])
+    if (index === this.state.cuts.length - 1) {
+      this.pushEmptyCut()
+    }
   }
 
-  onCutQuantityChanged = e => {
+
+  onCutHeightChanged = (e, index) => {
+
     const value = e.target.value
-    const index = Number(e.target.dataset.message)
 
-    if (this.cuts[index] !== undefined) {
-      if (value === "") {
-        delete this.cuts[index].nOrdered
-        console.log(index, this.cuts.length - 1)
-        if (index === this.cuts.length - 1 && index !== 0 && this.isEmpty(this.cuts[index])) {
-          this.cuts.slice(index, 1)
-        }
-      } else {
-        this.cuts[index].nOrdered = value
-      }
+    if (value === "") {
+      this.deleteCutProperty(index, 'height')
     } else {
-      this.cuts.push({ nOrdered: value })
+      this.updateCut(index, 'height', value)
     }
 
-    this.props.cutsHandler(this.cuts)
-    this.adjustNumberOfRows(this.cuts[index])
+    if (index === this.state.cuts.length - 1) {
+      this.pushEmptyCut()
+    }
   }
+
+
+  onCutQuantityChanged = (e, index) => {
+
+    const value = e.target.value
+
+    if (value === "") {
+      this.deleteCutProperty(index, 'nOrdered')
+    } else {
+      this.updateCut(index, 'nOrdered', value)
+    }
+
+    if (index === this.state.cuts.length - 1) {
+      this.pushEmptyCut()
+    }
+  }
+
+
+  onTextFieldBlur = (e, index) => {
+
+    if (this.isEmpty(this.state.cuts[index])) {
+      this.removeCut(index)
+    }
+  }
+
 
 
   render() {
     const createTable = () => {
-      const table = []
-      for (let i = 0; i < this.state.nCuts + 1; i++) {
-        table.push(<TableRow key={i}>
-          <TableRowColumn>{i}</TableRowColumn>
+
+      return this.state.cuts.map((cut, index) => {
+        return (<TableRow key={index}>
+          <TableRowColumn>{index}</TableRowColumn>
           <TableRowColumn>
             <TextField
               id='cut-width'
               style={{ width: '60px' }}
               inputStyle={{ textAlign: 'center' }}
-              data-message={i}
-              defaultValue={this.props.defaultData[i] ? this.props.defaultData[i].width : null}
-              onChange={this.onCutWidthChanged}
+              onBlur={event => this.onTextFieldBlur(event, index)}
+              onChange={event => this.onCutWidthChanged(event, index)}
+              value={this.state.cuts[index].width ? this.state.cuts[index].width : ""}
             />
           </TableRowColumn>
           <TableRowColumn>
@@ -126,9 +162,9 @@ class Cuts extends Component {
               id='cut-height'
               style={{ width: '60px' }}
               inputStyle={{ textAlign: 'center' }}
-              data-message={i}
-              defaultValue={this.props.defaultData[i] ? this.props.defaultData[i].height : null}
-              onChange={this.onCutHeightChanged}
+              onBlur={event => this.onTextFieldBlur(event, index)}
+              onChange={event => this.onCutHeightChanged(event, index)}
+              value={this.state.cuts[index].height ? this.state.cuts[index].height : ""}
             />
           </TableRowColumn>
           <TableRowColumn>
@@ -136,21 +172,18 @@ class Cuts extends Component {
               id='cut-quantity'
               style={{ width: '60px' }}
               inputStyle={{ textAlign: 'center' }}
-              data-message={i}
-              defaultValue={this.props.defaultData[i] ? this.props.defaultData[i].nOrdered : null}
-              onChange={this.onCutQuantityChanged}
+              onBlur={event => this.onTextFieldBlur(event, index)}
+              onChange={event => this.onCutQuantityChanged(event, index)}
+              value={this.state.cuts[index].nOrdered ? this.state.cuts[index].nOrdered : ""}
             />
           </TableRowColumn>
         </TableRow>)
-      }
-
-      return table
+      })
     }
 
 
     return (
       <div className='container'>
-
         <Table selectable={false}>
           <TableHeader
             displaySelectAll={false}
