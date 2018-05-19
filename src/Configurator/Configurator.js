@@ -26,7 +26,6 @@ class Configurator extends Component {
       cuts: [],
       configs: [],
       wastes: null,
-      result: null
     }
   }
 
@@ -161,7 +160,7 @@ class Configurator extends Component {
             </StepButton>
           </Step>
           <Step completed={doneSteps.indexOf(3) !== -1} active={stepIndex === 3}
-            disabled={this.state.result ? false : true}>
+            disabled={this.props.result ? false : true}>
             <StepButton onClick={() => this.setState({ stepIndex: 3 })}>
               Wynik
             </StepButton>
