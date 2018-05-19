@@ -51,15 +51,11 @@ class Configurator extends Component {
     const newConfigs = this.state.configs.slice()
 
     for (let i = 0; i < newConfigs.length; i++) {
-
       newConfigs[i] = newConfigs[i].filter(obj => value.includes(obj.cut))
-
-
     }
 
     if (newConfigs !== this.state.configs) {
-      console.log('OK')
-      this.setState({ configs: newConfigs }, () => console.log(this.state.configs))
+      this.setState({ configs: newConfigs })
     }
   }
 
@@ -78,15 +74,37 @@ class Configurator extends Component {
     }
   }
 
-  onSubmit = e => {
-    const result = {
-      sheet: this.state.sheet,
-      cuts: this.state.cuts,
-      configs: this.state.configs,
-      wastes: this.state.wastes.filter(value => value),
-    }
 
-    this.props.onSubmit(result)
+  calculateWastes = () => {
+    const sheet = this.state.sheet
+    let sheetArea = sheet.width * sheet.height
+    const wastes = []
+
+    this.state.configs.forEach(config => {
+      let cutsArea = 0
+      config.forEach(obj => {
+        if (obj.hasOwnProperty('nInSheet')) {
+          cutsArea += (obj.cut.width * obj.cut.height) * obj.nInSheet
+        }
+      })
+
+      wastes.push((sheetArea - cutsArea) * sheet.wasteCost)
+    })
+
+    return wastes
+  }
+
+  onSubmit = e => {
+    this.setState({ wastes: this.calculateWastes() }, () => {
+      const result = {
+        sheet: this.state.sheet,
+        cuts: this.state.cuts.slice(0, this.state.cuts.length - 1),
+        configs: this.state.configs.slice(0, this.state.configs.length - 1),
+        wastes: this.state.wastes.slice(0, this.state.wastes.length - 1),
+      }
+
+      this.props.onSubmit(result)
+    })
   }
 
 
