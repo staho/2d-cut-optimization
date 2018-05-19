@@ -50,8 +50,6 @@ class SheetCut extends Component {
       }
     }
 
-    console.log(this.props.data.cuts.length)
-
     if (this.props.data.cuts.length > 0) {
       this.setState({ cuts: this.props.data.cuts })
     }
@@ -96,6 +94,7 @@ class SheetCut extends Component {
 
     return true
   }
+
 
   getPayload = () => {
     return { configs: this.state.configs, wastes: this.state.wastes }

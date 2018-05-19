@@ -25,8 +25,6 @@ class Cuts extends Component {
     if (this.props.defaultData.length > 0) {
       this.setState({ cuts: this.props.defaultData })
     }
-
-
   }
 
 

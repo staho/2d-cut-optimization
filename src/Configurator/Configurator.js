@@ -48,10 +48,18 @@ class Configurator extends Component {
       // console.log(this.state.cuts)
     })
 
-    const newConfigs = this.state.configs.filter(config => !value.includes(config.cut))
+    const newConfigs = this.state.configs.slice()
+
+    for (let i = 0; i < newConfigs.length; i++) {
+
+      newConfigs[i] = newConfigs[i].filter(obj => value.includes(obj.cut))
+
+
+    }
 
     if (newConfigs !== this.state.configs) {
-      this.setState({ configs: newConfigs })
+      console.log('OK')
+      this.setState({ configs: newConfigs }, () => console.log(this.state.configs))
     }
   }
 
