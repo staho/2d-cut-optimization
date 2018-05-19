@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import Sheet from './Sheet'
 import Cuts from './Cuts'
 import SheetCut from './SheetCut'
+import Result from './Result'
 import {
   Step,
   Stepper,
@@ -25,6 +26,7 @@ class Configurator extends Component {
       cuts: [],
       configs: [],
       wastes: null,
+      result: null
     }
   }
 
@@ -94,6 +96,7 @@ class Configurator extends Component {
     return wastes
   }
 
+
   onSubmit = e => {
     this.setState({ wastes: this.calculateWastes() }, () => {
       const result = {
@@ -115,20 +118,25 @@ class Configurator extends Component {
 
     switch (stepIndex) {
       case 0:
-        stepView = <div>
+        stepView =
           <Sheet sheetHandler={this.sheetHandler} defaultData={this.state.sheet}></Sheet>
-        </div>
+
         break
       case 1:
-        stepView = <div>
+        stepView =
           <Cuts cutsHandler={this.cutsHandler} defaultData={this.state.cuts}></Cuts>
-        </div>
+
         break
       case 2:
-        stepView = <div>
+        stepView =
           <SheetCut sheetCutsHandler={this.sheetCutsHandler} data={this.getSheetCutData()}
             defaultData={{ configs: this.state.configs, wastes: this.state.wastes }}></SheetCut>
-        </div>
+
+        break
+      case 3:
+        stepView =
+          <Result></Result>
+
         break
       default:
         break
@@ -144,12 +152,18 @@ class Configurator extends Component {
           </Step>
           <Step completed={doneSteps.indexOf(1) !== -1} active={stepIndex === 1}>
             <StepButton onClick={() => this.setState({ stepIndex: 1 })}>
-              Stwórz rozkroje
+              Dodaj rozkroje
             </StepButton>
           </Step>
           <Step completed={doneSteps.indexOf(2) !== -1} active={stepIndex === 2}>
             <StepButton onClick={() => this.setState({ stepIndex: 2 })}>
-              Wybierz konfiguracje rozkroju
+              Dodaj konfiguracje rozkrojów
+            </StepButton>
+          </Step>
+          <Step completed={doneSteps.indexOf(3) !== -1} active={stepIndex === 3}
+            disabled={this.state.result ? false : true}>
+            <StepButton onClick={() => this.setState({ stepIndex: 3 })}>
+              Wynik
             </StepButton>
           </Step>
         </Stepper>
