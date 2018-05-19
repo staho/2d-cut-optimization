@@ -9,7 +9,7 @@ class Result extends Component {
   render() {
     return (
       <div className='container'>
-
+        {this.props.result}
       </div>
     )
   }

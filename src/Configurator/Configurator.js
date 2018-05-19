@@ -134,7 +134,7 @@ class Configurator extends Component {
         break
       case 3:
         stepView =
-          <Result></Result>
+          <Result result={this.props.result}></Result>
 
         break
       default:
