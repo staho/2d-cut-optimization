@@ -10,12 +10,13 @@ import {
   TableRowColumn,
 } from 'material-ui/Table';
 import './Cuts.css'
+import uniqid from 'uniqid'
 
 class Cuts extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      cuts: [{}],
+      cuts: [{ _id: uniqid() }],
     }
   }
 
@@ -24,11 +25,13 @@ class Cuts extends Component {
     if (this.props.defaultData.length > 0) {
       this.setState({ cuts: this.props.defaultData })
     }
+
+
   }
 
 
   isEmpty = obj => {
-    return Object.keys(obj).length === 0 && obj.constructor === Object
+    return Object.keys(obj).length === 1 && obj.constructor === Object
   }
 
 
@@ -50,7 +53,7 @@ class Cuts extends Component {
 
     this.setState(prevState => {
       return {
-        cuts: [...prevState.cuts, {}]
+        cuts: [...prevState.cuts, { _id: uniqid() }]
       }
     }, () => {
       this.props.cutsHandler(this.state.cuts)
@@ -75,12 +78,14 @@ class Cuts extends Component {
 
   removeCut = index => {
 
-    this.setState(prevState => ({
-      cuts: update(prevState.cuts, { $splice: [[index, 1]] })
-    }), () => {
-      this.props.cutsHandler(this.state.cuts)
-      this.forceUpdate()
-    })
+    if (this.state.cuts.length !== 1 && index !== this.state.cuts.length - 1) {
+      this.setState(prevState => ({
+        cuts: update(prevState.cuts, { $splice: [[index, 1]] })
+      }), () => {
+        this.props.cutsHandler(this.state.cuts)
+        this.forceUpdate()
+      })
+    }
   }
 
 

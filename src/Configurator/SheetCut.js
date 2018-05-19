@@ -30,11 +30,7 @@ class SheetCut extends Component {
         configs: this.props.defaultData.configs,
         wastes: this.props.defaultData.wastes
       }, () => {
-        this.state.configs.forEach((config, index) => {
-          if (index !== this.state.configs.length - 1) {
-            this.calculateWaste(index)
-          }
-        })
+        this.conformConfigsToAvailableCuts()
       })
     } else {
       if (this.props.data.cuts.length > 0) {
@@ -54,8 +50,36 @@ class SheetCut extends Component {
       }
     }
 
-    if (this.props.data.cuts.length > 0) { this.setState({ cuts: this.props.data.cuts }) }
+    console.log(this.props.data.cuts.length)
+
+    if (this.props.data.cuts.length > 0) {
+      this.setState({ cuts: this.props.data.cuts })
+    }
     if (this.props.data.sheet) { this.setState({ sheet: this.props.data.sheet }) }
+  }
+
+
+  conformConfigsToAvailableCuts = () => {
+
+    const configs = this.state.configs.map((config, index) => {
+      return this.props.data.cuts.map(cut => {
+        const existing = this.state.configs[index].filter(elem => elem.cut._id === cut._id)
+        return existing[0] ? existing[0] : {
+          cut: cut,
+        }
+      })
+    })
+
+    this.setState({ configs: configs }, () => {
+      this.forceUpdate()
+      const wastes = []
+      this.state.configs.forEach((config, index) => {
+        if (index !== this.state.configs.length - 1) {
+          wastes.push(this.calculateWaste(index))
+        }
+      })
+      this.setState({ wastes: wastes }, () => console.log(this.state.wastes))
+    })
   }
 
 
@@ -89,8 +113,11 @@ class SheetCut extends Component {
 
 
     this.setState({ configs: configs }, () => {
-      this.calculateWaste(index)
-      this.props.sheetCutsHandler(this.getPayload())
+      const wastes = this.state.wastes.slice()
+      wastes[index] = this.calculateWaste(index)
+      this.setState({ wastes: wastes }, () => {
+        this.props.sheetCutsHandler(this.getPayload())
+      })
     });
   }
 
@@ -107,8 +134,11 @@ class SheetCut extends Component {
 
 
     this.setState({ configs: configs }, () => {
-      this.calculateWaste(index)
-      this.props.sheetCutsHandler(this.getPayload())
+      const wastes = this.state.wastes.slice()
+      wastes[index] = this.calculateWaste(index)
+      this.setState({ wastes: wastes }, () => {
+        this.props.sheetCutsHandler(this.getPayload())
+      })
     })
   }
 
@@ -132,22 +162,26 @@ class SheetCut extends Component {
 
     this.setState(prevState => {
       return { wastes: [...prevState.wastes, null] }
+    }, () => {
+      this.props.sheetCutsHandler(this.getPayload())
     })
   }
 
 
   removeConfig = index => {
 
-    this.setState(prevState => ({
-      configs: update(prevState.configs, { $splice: [[index, 1]] })
-    }), () => {
-      this.props.sheetCutsHandler(this.getPayload())
-      this.forceUpdate()
-    })
+    if (this.state.configs.length !== 1 && index !== this.state.configs.length - 1) {
+      this.setState(prevState => ({
+        configs: update(prevState.configs, { $splice: [[index, 1]] })
+      }), () => {
+        this.props.sheetCutsHandler(this.getPayload())
+        this.forceUpdate()
+      })
 
-    this.setState(prevState => ({
-      wastes: update(prevState.wastes, { $splice: [[index, 1]] })
-    }))
+      this.setState(prevState => ({
+        wastes: update(prevState.wastes, { $splice: [[index, 1]] })
+      }))
+    }
   }
 
 
@@ -155,8 +189,6 @@ class SheetCut extends Component {
 
     const sheet = this.state.sheet
     const config = this.state.configs[index]
-
-
     let cutsArea = 0
     let sheetArea = sheet.width * sheet.height
 
@@ -169,12 +201,7 @@ class SheetCut extends Component {
 
     const waste = (sheetArea - cutsArea) * sheet.wasteCost
 
-    const wastes = this.state.wastes.slice()
-    wastes[index] = waste
-    this.setState({ wastes: wastes }, () => {
-      // console.log(this.state.wastes)
-    })
-
+    return waste
   }
 
 

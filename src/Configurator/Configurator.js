@@ -23,13 +23,13 @@ class Configurator extends Component {
         wasteCost: null,
       },
       cuts: [],
-      configs: null,
+      configs: [],
       wastes: null,
     }
   }
 
   isNotEmpty = obj => {
-    return !(Object.keys(obj).length === 0 && obj.constructor === Object)
+    return !(Object.keys(obj).length === 1 && obj.constructor === Object)
   }
 
   sheetHandler = value => {
@@ -47,6 +47,12 @@ class Configurator extends Component {
     this.setState({ cuts: value }, () => {
       // console.log(this.state.cuts)
     })
+
+    const newConfigs = this.state.configs.filter(config => !value.includes(config.cut))
+
+    if (newConfigs !== this.state.configs) {
+      this.setState({ configs: newConfigs })
+    }
   }
 
   sheetCutsHandler = value => {
