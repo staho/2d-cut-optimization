@@ -35,6 +35,13 @@ class Cuts extends Component {
               'cut-height': this.getValidation(cut.height),
               'cut-nOrdered': this.getValidation(cut.nOrdered)
             }
+          } else {
+            errors[index] = {
+              id: index,
+              'cut-width': null,
+              'cut-height': null,
+              'cut-nOrdered': null
+            }
           }
         })
         this.setState({ errors: errors })

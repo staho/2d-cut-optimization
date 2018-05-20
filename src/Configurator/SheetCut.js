@@ -73,6 +73,8 @@ class SheetCut extends Component {
         if (index !== this.state.configs.length - 1) {
           console.log(config)
           errors[index][cut._id] = this.getValidation(config[cutIndex].nInSheet)
+        } else {
+          errors[index][cut._id] = null
         }
 
         const existing = config.filter(elem => elem.cut._id === cut._id)
