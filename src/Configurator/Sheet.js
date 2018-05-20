@@ -50,7 +50,7 @@ class Sheet extends Component {
     this.setState({
       errors: {
         ...this.state.errors,
-        [inputKey]: isNaN(Number(value)) ? 'Podaj liczbę.' : null
+        [inputKey]: isNaN(Number(value)) ? 'Podaj liczbę' : null
       }
     }, () => callback())
   }
@@ -72,7 +72,7 @@ class Sheet extends Component {
             }
           </div>
           <TextField
-            key='sheet-height'
+            id='sheet-height'
             className='sheet-input-right'
             style={{ width: '60px' }}
             inputStyle={{ textAlign: 'center' }}
@@ -83,7 +83,7 @@ class Sheet extends Component {
           />
         </div>
         <TextField
-          key='sheet-width'
+          id='sheet-width'
           className='sheet-input-bottom'
           style={{ width: '60px' }}
           inputStyle={{ textAlign: 'center' }}
@@ -97,7 +97,7 @@ class Sheet extends Component {
 
         <div className='sheet-info'>
           <TextField
-            key='waste-cost'
+            id='waste-cost'
             inputStyle={{ textAlign: 'center' }}
             floatingLabelText="Cena za 1 m² odpadów"
             defaultValue={this.props.defaultData.wasteCost}
