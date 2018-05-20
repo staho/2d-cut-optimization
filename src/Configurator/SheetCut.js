@@ -24,7 +24,7 @@ class SheetCut extends Component {
 
   componentDidMount() {
 
-    if (this.props.defaultData.configs && this.props.defaultData.wastes) {
+    if (this.props.defaultData.configs.length > 0 && this.props.defaultData.wastes) {
       this.setState({
         configs: this.props.defaultData.configs,
         wastes: this.props.defaultData.wastes

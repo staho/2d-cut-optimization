@@ -7,3 +7,7 @@
   margin-top: 20px;
   border: 0.5px lightgray solid;
 }
+
+.invalid-input-label {
+  color: #FF5252
+}

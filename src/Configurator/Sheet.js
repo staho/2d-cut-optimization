@@ -98,7 +98,7 @@ class Sheet extends Component {
           <TextField
             id='sheet-height'
             className='sheet-input-right'
-            style={{ width: '60px' }}
+            style={{ width: '70px' }}
             inputStyle={{ textAlign: 'center' }}
             floatingLabelText="Wysokość"
             defaultValue={this.props.defaultData.height}
@@ -109,7 +109,7 @@ class Sheet extends Component {
         <TextField
           id='sheet-width'
           className='sheet-input-bottom'
-          style={{ width: '60px' }}
+          style={{ width: '70px' }}
           inputStyle={{ textAlign: 'center' }}
           floatingLabelText="Szerokość"
           defaultValue={this.props.defaultData.width}
