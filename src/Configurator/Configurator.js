@@ -28,6 +28,14 @@ class Configurator extends Component {
     }
   }
 
+  static getDerivedStateFromProps(nextProps, prevState) {
+    if (nextProps.result) {
+      return {
+        stepIndex: 3
+      }
+    }
+  }
+
   isNotEmpty = obj => {
     return !(Object.keys(obj).length === 1 && obj.constructor === Object)
   }
