@@ -9,9 +9,9 @@ import {
   TableRow,
   TableRowColumn,
 } from 'material-ui/Table';
-import './SheetCut.css'
+import './Configs.css'
 
-class SheetCut extends Component {
+class Configs extends Component {
   constructor(props) {
     super(props)
     this.state = {
@@ -260,10 +260,11 @@ class SheetCut extends Component {
   }
 
   getWasteString = value => {
-    if (value == null) {
+
+    if (value === null || isNaN(value)) {
       return '0 zł'
     } else if (value < 0) {
-      return 'błąd'
+      return <div style={{ color: '#ef2b29' }}>Zbyt duża ilość rozkrojów</div>
     } else {
       return `${value} zł`
     }
@@ -366,4 +367,4 @@ class SheetCut extends Component {
   }
 }
 
-export default SheetCut
+export default Configs

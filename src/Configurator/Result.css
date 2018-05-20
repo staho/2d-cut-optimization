@@ -8,6 +8,10 @@
   border: 0.5px lightgray solid;
 }
 
-.invalid-input-label {
+.invalid-input-header {
   color: #FF5252
+}
+
+.invalid-input-text {
+  color: #ef2b29;
 }
