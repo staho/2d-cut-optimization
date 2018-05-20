@@ -28,7 +28,7 @@ class Cuts extends Component {
       this.setState({ cuts: this.props.defaultData }, () => {
         const errors = this.state.errors.slice()
         this.state.cuts.forEach((cut, index) => {
-          if (index != this.state.cuts.length - 1) {
+          if (index !== this.state.cuts.length - 1) {
             errors[index] = {
               id: index,
               'cut-width': this.getValidation(cut.width),

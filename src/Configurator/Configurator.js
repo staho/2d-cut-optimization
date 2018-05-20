@@ -61,7 +61,7 @@ class Configurator extends Component {
     const newConfigs = this.state.configs.slice()
 
     for (let i = 0; i < newConfigs.length; i++) {
-      newConfigs[i] = newConfigs[i].filter(obj => value.includes(obj.cut))
+      newConfigs[i] = newConfigs[i].filter(obj => value.some(cut => cut._id === obj.cut._id))
     }
 
     if (newConfigs !== this.state.configs) {

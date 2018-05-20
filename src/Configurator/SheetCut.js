@@ -70,12 +70,6 @@ class SheetCut extends Component {
     })
     const configs = this.state.configs.map((config, index) => {
       return this.props.data.cuts.map((cut, cutIndex) => {
-        if (index !== this.state.configs.length - 1) {
-          console.log(config)
-          errors[index][cut._id] = this.getValidation(config[cutIndex].nInSheet)
-        } else {
-          errors[index][cut._id] = null
-        }
 
         const existing = config.filter(elem => elem.cut._id === cut._id)
         return existing[0] ? existing[0] : {
@@ -84,15 +78,25 @@ class SheetCut extends Component {
       })
     })
 
-    this.setState({ configs: configs, errors: errors }, () => {
+    this.setState({ configs: configs }, () => {
+
       this.forceUpdate()
       const wastes = []
       this.state.configs.forEach((config, index) => {
+
+        this.state.cuts.forEach((cut, cutIndex) => {
+          if (index !== this.state.configs.length - 1) {
+            errors[index][cut._id] = this.getValidation(config[cutIndex].nInSheet)
+          } else {
+            errors[index][cut._id] = null
+          }
+        })
+
         if (index !== this.state.configs.length - 1) {
           wastes.push(this.calculateWaste(index))
         }
       })
-      this.setState({ wastes: wastes }, () => console.log(this.state.wastes))
+      this.setState({ wastes: wastes, errors: errors }, () => {/*console.log(this.state.wastes)*/ })
     })
   }
 
