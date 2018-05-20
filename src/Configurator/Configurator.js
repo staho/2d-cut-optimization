@@ -1,8 +1,12 @@
 import React, { Component } from 'react';
 import Sheet from './Sheet'
 import Cuts from './Cuts'
-import SheetCut from './SheetCut'
+import Configs from './Configs'
 import Result from './Result'
+import ErrorIcon from 'material-ui/svg-icons/alert/error'
+import FlagIcon from 'material-ui/svg-icons/content/flag'
+import CheckIcon from 'material-ui/svg-icons/action/check-circle'
+import { red500, grey500, green500 } from 'material-ui/styles/colors';
 import {
   Step,
   Stepper,
@@ -201,8 +205,8 @@ class Configurator extends Component {
         break
       case 2:
         stepView =
-          <SheetCut sheetCutsHandler={this.sheetCutsHandler} data={this.getSheetCutData()}
-            defaultData={{ configs: this.state.configs, wastes: this.state.wastes }}></SheetCut>
+          <Configs sheetCutsHandler={this.sheetCutsHandler} data={this.getSheetCutData()}
+            defaultData={{ configs: this.state.configs, wastes: this.state.wastes }}></Configs>
 
         break
       case 3:
@@ -234,7 +238,13 @@ class Configurator extends Component {
           </Step>
           <Step completed={doneSteps.indexOf(3) !== -1} active={stepIndex === 3}
             disabled={this.props.result === undefined ? true : false}>
-            <StepButton onClick={() => this.setState({ stepIndex: 3 })}>
+            <StepButton onClick={() => this.setState({ stepIndex: 3 })}
+              icon={this.props.result === undefined ? <FlagIcon color={grey500} /> :
+                this.props.result === null ?
+                  <ErrorIcon color={red500} /> :
+                  <CheckIcon color={green500} />
+              }
+            >
               Wynik
             </StepButton>
           </Step>
@@ -243,7 +253,7 @@ class Configurator extends Component {
         {stepView}
 
         <RaisedButton
-          label='Submit'
+          label='Rozwiąż'
           className='submit-button-root'
           buttonStyle={{
             width: '100px',

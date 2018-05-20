@@ -15,9 +15,15 @@ class Result extends Component {
           <h3>
             {JSON.stringify(this.props.result)}
           </h3> :
-          <h3 className='invalid-input-label'>
-            Invalid input
+          <div>
+            <h3 className='invalid-input-header'>
+              Nieprawidłowe dane
           </h3>
+            <p className='invalid-input-text'>
+              Popraw dane z poprzednich kroków i spróbuj ponownie.
+          </p>
+          </div>
+
 
         }
 
