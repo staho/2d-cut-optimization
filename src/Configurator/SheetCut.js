@@ -18,6 +18,7 @@ class SheetCut extends Component {
       cuts: [],
       configs: [],
       wastes: [0],
+      errors: []
     }
   }
 
@@ -32,7 +33,9 @@ class SheetCut extends Component {
       })
     } else {
       if (this.props.data.cuts.length > 0) {
+        const errors = [{}]
         const configs = this.props.data.cuts.map((cut, index) => {
+          errors[0][cut._id] = null
           return {
             cut: cut,
           }
@@ -41,8 +44,13 @@ class SheetCut extends Component {
           configs: [
             ...this.state.configs,
             configs
+          ],
+          errors: [
+            ...this.state.errors,
+            errors
           ]
         }, () => {
+          // console.log(this.state.errors)
           // console.log(this.state.configs)
         })
       }
@@ -57,16 +65,24 @@ class SheetCut extends Component {
 
   conformConfigsToAvailableCuts = () => {
 
+    const errors = this.state.configs.map((config, index) => {
+      return { id: index }
+    })
     const configs = this.state.configs.map((config, index) => {
-      return this.props.data.cuts.map(cut => {
-        const existing = this.state.configs[index].filter(elem => elem.cut._id === cut._id)
+      return this.props.data.cuts.map((cut, cutIndex) => {
+        if (index !== this.state.configs.length - 1) {
+          console.log(config)
+          errors[index][cut._id] = this.getValidation(config[cutIndex].nInSheet)
+        }
+
+        const existing = config.filter(elem => elem.cut._id === cut._id)
         return existing[0] ? existing[0] : {
           cut: cut,
         }
       })
     })
 
-    this.setState({ configs: configs }, () => {
+    this.setState({ configs: configs, errors: errors }, () => {
       this.forceUpdate()
       const wastes = []
       this.state.configs.forEach((config, index) => {
@@ -142,7 +158,9 @@ class SheetCut extends Component {
 
   pushEmptyConfig = () => {
 
+    const configErrors = [{}]
     const initialArr = this.state.cuts.map(cut => {
+      configErrors[0][cut._id] = null
       return {
         cut: cut,
       }
@@ -151,7 +169,8 @@ class SheetCut extends Component {
 
     this.setState(prevState => {
       return {
-        configs: [...prevState.configs, initialArr]
+        configs: [...prevState.configs, initialArr],
+        errors: [...prevState.errors, configErrors],
       }
     }, () => {
       this.props.sheetCutsHandler(this.getPayload())
@@ -169,7 +188,9 @@ class SheetCut extends Component {
 
     if (this.state.configs.length !== 1 && index !== this.state.configs.length - 1) {
       this.setState(prevState => ({
-        configs: update(prevState.configs, { $splice: [[index, 1]] })
+        configs: update(prevState.configs, { $splice: [[index, 1]] }),
+        errors: update(prevState.errors, { $splice: [[index, 1]] }),
+
       }), () => {
         this.props.sheetCutsHandler(this.getPayload())
         this.forceUpdate()
@@ -206,16 +227,22 @@ class SheetCut extends Component {
 
     const value = e.target.value
 
+    this.validate(value, index, this.state.cuts[i]._id, (result, err) => {
+      if (err) { console.error(err) }
 
-    if (value === "") {
-      this.deleteConfigElemProperty(index, i, 'nInSheet')
-    } else {
-      this.updateConfigElem(index, i, 'nInSheet', value)
-    }
+      if (value === "") {
+        this.deleteConfigElemProperty(index, i, 'nInSheet')
+      } else {
+        this.updateConfigElem(index, i, 'nInSheet', value)
+      }
 
-    if (index === this.state.configs.length - 1) {
-      this.pushEmptyConfig()
-    }
+      if (index === this.state.configs.length - 1) {
+        this.pushEmptyConfig()
+      }
+    })
+
+
+
   }
 
 
@@ -234,6 +261,26 @@ class SheetCut extends Component {
     } else {
       return `${value} zł`
     }
+  }
+
+  validate = (value, index, inputKey, callback) => {
+    const errors = this.state.errors.slice()
+
+    const err = isNaN(Number(value)) ? 'Podaj liczbę' : null
+    let errMsg = null
+    if (err) {
+      errMsg = `TYPE_ERROR: in ${inputKey}`
+    }
+
+    errors[index][inputKey] = err
+
+    this.setState({
+      errors: errors
+    }, () => callback(null, errMsg))
+  }
+
+  getValidation = (value) => {
+    return isNaN(Number(value)) ? 'Podaj liczbę' : null
   }
 
 
@@ -268,6 +315,7 @@ class SheetCut extends Component {
                 onChange={event => this.onCutnInSheetChanged(event, i, index)}
                 value={this.state.configs[i][index].nInSheet ?
                   this.state.configs[i][index].nInSheet : ""}
+                errorText={this.state.errors[i] && this.state.errors[i][obj.cut._id]}
               />
             </TableRowColumn>
           )
