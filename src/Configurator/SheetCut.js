@@ -1,6 +1,4 @@
 import React, { Component } from 'react';
-import DropDownMenu from 'material-ui/DropDownMenu';
-import MenuItem from 'material-ui/MenuItem';
 import TextField from 'material-ui/TextField'
 import update from 'react-addons-update'
 import {
@@ -228,6 +226,16 @@ class SheetCut extends Component {
     }
   }
 
+  getWasteString = value => {
+    if (value == null) {
+      return '0 zł'
+    } else if (value < 0) {
+      return 'błąd'
+    } else {
+      return `${value} zł`
+    }
+  }
+
 
 
   render() {
@@ -267,10 +275,7 @@ class SheetCut extends Component {
 
         row.push(...cutsTextFields)
         row.push(<TableRowColumn key={`waste-${i}`}>
-          {this.state.wastes[i] ?
-            `${this.state.wastes[i]} zł` :
-            ""
-          }
+          {this.getWasteString(this.state.wastes[i])}
         </TableRowColumn>)
         table.push(row)
       }

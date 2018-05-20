@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
 import './App.css';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
 import Solver from './Solver/Solver'
@@ -19,7 +18,7 @@ class App extends Component {
     this.setState({ model: result })
 
     // Fake result 
-    this.setState({ result: 'DUPA' })
+    this.setState({ result: JSON.stringify(result) })
 
     console.log(result)
   }

@@ -9,7 +9,6 @@ import {
   StepButton,
 } from 'material-ui/Stepper';
 import RaisedButton from 'material-ui/RaisedButton';
-import FlatButton from 'material-ui/FlatButton';
 import './Configurator.css'
 
 class Configurator extends Component {

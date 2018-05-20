@@ -8,31 +8,53 @@ import MenuItem from 'material-ui/MenuItem';
 class Sheet extends Component {
   constructor(props) {
     super(props)
-    this.state = {}
+    this.state = {
+      errors: {
+        'sheet-height': null,
+        'sheet-width': null,
+        'waste-cost': null,
+      },
+    }
   }
 
   onSheetWidthChanged = e => {
+
     const value = e.target.value
-    this.props.sheetHandler({ width: value })
+
+    this.validate(value, 'sheet-width', () => {
+      this.props.sheetHandler({ width: value })
+    })
   }
 
   onSheetHeightChanged = e => {
+
     const value = e.target.value
 
-    this.props.sheetHandler({ height: value })
+    this.validate(value, 'sheet-height', () => {
+      this.props.sheetHandler({ height: value })
+    })
   }
 
   onSheetWasteCostChanged = e => {
+
     const value = e.target.value
 
-    this.props.sheetHandler({ wasteCost: value })
+    this.validate(value, 'waste-cost', () => {
+      this.props.sheetHandler({ wasteCost: value })
+    })
   }
 
-  onSheetQuantityChanged = e => {
-    const value = e.target.value
 
-    this.props.sheetHandler({ quantity: value })
+  validate = (value, inputKey, callback) => {
+
+    this.setState({
+      errors: {
+        ...this.state.errors,
+        [inputKey]: isNaN(Number(value)) ? 'Podaj liczbę.' : null
+      }
+    }, () => callback())
   }
+
 
   render() {
     return (
@@ -50,34 +72,37 @@ class Sheet extends Component {
             }
           </div>
           <TextField
-            id='sheet-height'
+            key='sheet-height'
             className='sheet-input-right'
             style={{ width: '60px' }}
             inputStyle={{ textAlign: 'center' }}
             floatingLabelText="Wysokość"
             defaultValue={this.props.defaultData.height}
             onChange={this.onSheetHeightChanged}
+            errorText={this.state.errors['sheet-height']}
           />
         </div>
         <TextField
-          id='sheet-width'
+          key='sheet-width'
           className='sheet-input-bottom'
           style={{ width: '60px' }}
           inputStyle={{ textAlign: 'center' }}
           floatingLabelText="Szerokość"
           defaultValue={this.props.defaultData.width}
           onChange={this.onSheetWidthChanged}
+          errorText={this.state.errors['sheet-width']}
         />
 
         <Divider style={{ marginTop: '25px' }}></Divider>
 
         <div className='sheet-info'>
           <TextField
-            id='waste-cost'
+            key='waste-cost'
             inputStyle={{ textAlign: 'center' }}
             floatingLabelText="Cena za 1 m² odpadów"
             defaultValue={this.props.defaultData.wasteCost}
             onChange={this.onSheetWasteCostChanged}
+            errorText={this.state.errors['waste-cost']}
           />
         </div>
       </div>
