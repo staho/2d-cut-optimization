@@ -17,11 +17,22 @@ class Sheet extends Component {
     }
   }
 
+  componentDidMount() {
+    this.setState({
+      errors: {
+        'sheet-height': this.getValidation(this.props.defaultData.height),
+        'sheet-width': this.getValidation(this.props.defaultData.width),
+        'waste-cost': this.getValidation(this.props.defaultData.wasteCost)
+      }
+    })
+  }
+
   onSheetWidthChanged = e => {
 
     const value = e.target.value
 
-    this.validate(value, 'sheet-width', () => {
+    this.validate(value, 'sheet-width', (result, err) => {
+      if (err) { console.error(err) }
       this.props.sheetHandler({ width: value })
     })
   }
@@ -30,7 +41,8 @@ class Sheet extends Component {
 
     const value = e.target.value
 
-    this.validate(value, 'sheet-height', () => {
+    this.validate(value, 'sheet-height', (result, err) => {
+      if (err) { console.error(err) }
       this.props.sheetHandler({ height: value })
     })
   }
@@ -39,7 +51,8 @@ class Sheet extends Component {
 
     const value = e.target.value
 
-    this.validate(value, 'waste-cost', () => {
+    this.validate(value, 'waste-cost', (result, err) => {
+      if (err) { console.error(err) }
       this.props.sheetHandler({ wasteCost: value })
     })
   }
@@ -47,12 +60,23 @@ class Sheet extends Component {
 
   validate = (value, inputKey, callback) => {
 
+    const err = isNaN(Number(value)) ? 'Podaj liczbę' : null
+    let errMsg = null
+    if (err) {
+      errMsg = `TYPE_ERROR: in ${inputKey}`
+    }
+
+
     this.setState({
       errors: {
         ...this.state.errors,
-        [inputKey]: isNaN(Number(value)) ? 'Podaj liczbę' : null
+        [inputKey]: err
       }
-    }, () => callback())
+    }, () => callback(null, errMsg))
+  }
+
+  getValidation = value => {
+    return isNaN(Number(value)) ? 'Podaj liczbę' : null
   }
 
 

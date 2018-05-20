@@ -17,7 +17,7 @@ class Cuts extends Component {
     super(props)
     this.state = {
       cuts: [{ _id: uniqid() }],
-      errors: [{ id: 0, 'cut-width': null, 'cut-height': null, 'cut-n': null }]
+      errors: [{ id: 0, 'cut-width': null, 'cut-height': null, 'cut-nOrdered': null }]
     }
 
   }
@@ -25,7 +25,20 @@ class Cuts extends Component {
   componentDidMount() {
 
     if (this.props.defaultData.length > 0) {
-      this.setState({ cuts: this.props.defaultData })
+      this.setState({ cuts: this.props.defaultData }, () => {
+        const errors = this.state.errors.slice()
+        this.state.cuts.forEach((cut, index) => {
+          if (index != this.state.cuts.length - 1) {
+            errors[index] = {
+              id: index,
+              'cut-width': this.getValidation(cut.width),
+              'cut-height': this.getValidation(cut.height),
+              'cut-nOrdered': this.getValidation(cut.nOrdered)
+            }
+          }
+        })
+        this.setState({ errors: errors })
+      })
     }
   }
 
@@ -58,7 +71,7 @@ class Cuts extends Component {
           id: prevState.errors.length,
           'cut-width': null,
           'cut-height': null,
-          'cut-n': null
+          'cut-nOrdered': null
         }]
       }
     }, () => {
@@ -101,7 +114,9 @@ class Cuts extends Component {
 
     const value = e.target.value
 
-    this.validate(value, index, 'cut-width', () => {
+    this.validate(value, index, 'cut-width', (result, err) => {
+      if (err) { console.error(err) }
+
       if (value === "") {
         this.deleteCutProperty(index, 'width')
       } else {
@@ -119,7 +134,9 @@ class Cuts extends Component {
 
     const value = e.target.value
 
-    this.validate(value, index, 'cut-height', () => {
+    this.validate(value, index, 'cut-height', (result, err) => {
+      if (err) { console.error(err) }
+
       if (value === "") {
         this.deleteCutProperty(index, 'height')
       } else {
@@ -137,7 +154,9 @@ class Cuts extends Component {
 
     const value = e.target.value
 
-    this.validate(value, index, 'cut-n', () => {
+    this.validate(value, index, 'cut-nOrdered', (result, err) => {
+      if (err) { console.error(err) }
+
       if (value === "") {
         this.deleteCutProperty(index, 'nOrdered')
       } else {
@@ -152,22 +171,29 @@ class Cuts extends Component {
 
 
   onTextFieldBlur = (e, index) => {
-    console.log(this.state.errors)
     if (this.isEmpty(this.state.cuts[index])) {
       this.removeCut(index)
     }
   }
 
-  validate = (value, index, inputKey, callback) => {
-    console.log(index)
-
+  validate = (value, index, inputKey, callback = null) => {
     const errors = this.state.errors.slice()
 
-    errors[index][inputKey] = isNaN(Number(value)) ? 'Podaj liczbę' : null
+    const err = isNaN(Number(value)) ? 'Podaj liczbę' : null
+    let errMsg = null
+    if (err) {
+      errMsg = `TYPE_ERROR: in ${inputKey}`
+    }
+
+    errors[index][inputKey] = err
 
     this.setState({
       errors: errors
-    }, () => callback())
+    }, () => callback(null, errMsg))
+  }
+
+  getValidation = (value) => {
+    return isNaN(Number(value)) ? 'Podaj liczbę' : null
   }
 
 
@@ -186,7 +212,7 @@ class Cuts extends Component {
               onBlur={event => this.onTextFieldBlur(event, index)}
               onChange={event => this.onCutWidthChanged(event, index)}
               value={this.state.cuts[index].width ? this.state.cuts[index].width : ""}
-              errorText={this.state.errors[index]['cut-width']}
+              errorText={this.state.errors[index] && this.state.errors[index]['cut-width']}
             />
           </TableRowColumn>
           <TableRowColumn>
@@ -197,18 +223,18 @@ class Cuts extends Component {
               onBlur={event => this.onTextFieldBlur(event, index)}
               onChange={event => this.onCutHeightChanged(event, index)}
               value={this.state.cuts[index].height ? this.state.cuts[index].height : ""}
-              errorText={this.state.errors[index]['cut-height']}
+              errorText={this.state.errors[index] && this.state.errors[index]['cut-height']}
             />
           </TableRowColumn>
           <TableRowColumn>
             <TextField
-              id={`cut-n-${index}`}
+              id={`cut-nOrdered-${index}`}
               style={{ width: '60px' }}
               inputStyle={{ textAlign: 'center' }}
               onBlur={event => this.onTextFieldBlur(event, index)}
               onChange={event => this.onCutQuantityChanged(event, index)}
               value={this.state.cuts[index].nOrdered ? this.state.cuts[index].nOrdered : ""}
-              errorText={this.state.errors[index]['cut-n']}
+              errorText={this.state.errors[index] && this.state.errors[index]['cut-nOrdered']}
             />
           </TableRowColumn>
         </TableRow>)
