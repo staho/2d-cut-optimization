@@ -10,7 +10,18 @@ class Result extends Component {
   render() {
     return (
       <div className='container'>
-        {this.props.result}
+
+        {this.props.result ?
+          <h3>
+            {JSON.stringify(this.props.result)}
+          </h3> :
+          <h3 className='invalid-input-label'>
+            Invalid input
+          </h3>
+
+        }
+
+
       </div>
     )
   }

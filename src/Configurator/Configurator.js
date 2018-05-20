@@ -29,7 +29,7 @@ class Configurator extends Component {
   }
 
   static getDerivedStateFromProps(nextProps, prevState) {
-    if (nextProps.result) {
+    if (nextProps.result !== undefined) {
       return {
         stepIndex: 3
       }
@@ -106,7 +106,9 @@ class Configurator extends Component {
 
 
   onSubmit = e => {
-    this.setState({ wastes: this.calculateWastes() }, () => {
+    this.setState({
+      wastes: this.calculateWastes()
+    }, () => {
       const result = {
         sheet: this.state.sheet,
         cuts: this.state.cuts.slice(0, this.state.cuts.length - 1),
@@ -114,8 +116,70 @@ class Configurator extends Component {
         wastes: this.state.wastes.slice(0, this.state.wastes.length - 1),
       }
 
-      this.props.onSubmit(result)
+      console.log(result)
+
+      this.props.onSubmit(this.validateResult(result) ? result : null)
     })
+  }
+
+
+  validateResult = (result, callback) => {
+    let ok = true
+
+    const sheet = Object.assign({}, result.sheet)
+    if (sheet.width === null ||
+      sheet.width === "" ||
+      isNaN(Number(sheet.width))) {
+
+      ok = false
+      sheet.width = undefined
+    }
+    if (sheet.height === null ||
+      sheet.height === "" ||
+      isNaN(Number(sheet.height))) {
+
+      ok = false
+      sheet.height = undefined
+    }
+    if (sheet.wasteCost === null ||
+      sheet.wasteCost === "" ||
+      isNaN(Number(sheet.wasteCost))) {
+
+      ok = false
+      sheet.wasteCost = undefined
+    }
+
+    result.cuts.forEach(cut => {
+      if (cut.height === null ||
+        cut.height === "" ||
+        isNaN(Number(cut.height))) { ok = false }
+      if (cut.width === null ||
+        cut.width === "" ||
+        isNaN(Number(cut.width))) { ok = false }
+      if (cut.nOrdered === null ||
+        cut.nOrdered === "" ||
+        isNaN(Number(cut.nOrdered))) { ok = false }
+    })
+
+
+    result.configs.forEach(config => {
+      config.forEach(obj => {
+        if (obj.nInSheet === null ||
+          obj.nInSheet === "" ||
+          isNaN(Number(obj.nInSheet))) { ok = false }
+      })
+    })
+
+
+    result.wastes.forEach(waste => {
+      if (waste === null ||
+        waste < 0 ||
+        isNaN(waste)) { ok = false }
+    })
+
+    this.setState({ sheet: sheet })
+
+    return ok
   }
 
 
@@ -169,7 +233,7 @@ class Configurator extends Component {
             </StepButton>
           </Step>
           <Step completed={doneSteps.indexOf(3) !== -1} active={stepIndex === 3}
-            disabled={this.props.result ? false : true}>
+            disabled={this.props.result === undefined ? true : false}>
             <StepButton onClick={() => this.setState({ stepIndex: 3 })}>
               Wynik
             </StepButton>
@@ -180,9 +244,12 @@ class Configurator extends Component {
 
         <RaisedButton
           label='Submit'
-          className='submit-button'
+          className='submit-button-root'
+          buttonStyle={{
+            width: '100px',
+          }}
           primary={true}
-          style={{ color: 'white' }}
+          style={{ color: 'white', marginLeft: '-50px', boxShadow: '0px 5px 25px #aaa' }}
           onClick={this.onSubmit}
         />
 

@@ -8,25 +8,24 @@ class App extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      model: undefined,
+      input: undefined,
       result: undefined
     }
   }
 
 
-  onSubmit = (result) => {
-    this.setState({ model: result })
+  onSubmit = (input) => {
+    this.setState({ input: input })
+  }
 
-    // Fake result 
-    this.setState({ result: JSON.stringify(result) })
-
-    console.log(result)
+  setResult = output => {
+    this.setState({ result: output })
   }
 
   render() {
     return (
       <div className="App">
-        <Solver model={this.state.result} />
+        <Solver input={this.state.input} setResult={this.setResult} />
         <MuiThemeProvider>
           <div>
             <Configurator onSubmit={this.onSubmit} result={this.state.result}></Configurator>
