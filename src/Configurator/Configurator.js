@@ -33,6 +33,8 @@ class Configurator extends Component {
       return {
         stepIndex: 3
       }
+    } else {
+      return null
     }
   }
 
