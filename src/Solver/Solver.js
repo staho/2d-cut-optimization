@@ -21,14 +21,35 @@ const createModel = input => {
   if (!input) { return null }
   else {
 
-    //TODO: Create proper model for solver
+    let constraints = {},
+        vars = {}
 
-    return {
+
+    input.cuts.forEach((cut, i) => {
+      constraints[`cut${i}`] = {min: cut.nOrdered}
+    });
+
+    input.configs.forEach((config, i) => {
+      let obj = {}
+
+      config.forEach((cut, j) => {
+        obj[`cut${j}`] = cut.nInSheet
+      })
+
+      obj['waste'] = input.wastes[i]
+
+      vars[`x${i}`] = obj
+    })
+
+    //TODO: Create proper model for solver
+    let model =  {
       optimize: "waste",
       opType: "min",
-      constraints: {},
-      variables: {}
+      constraints: constraints,
+      variables: vars
     }
+    console.log(model)
+    return model
 
   }
 }
@@ -69,6 +90,7 @@ class Solver extends React.Component {
 
 
   render() {
+    console.log(this.state.model)
     return (
       <div>
 
