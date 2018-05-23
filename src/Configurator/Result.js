@@ -1,4 +1,12 @@
 import React, { Component } from 'react'
+import {
+  Table,
+  TableBody,
+  TableHeader,
+  TableHeaderColumn,
+  TableRow,
+  TableRowColumn,
+} from 'material-ui/Table';
 import './Result.css'
 
 class Result extends Component {
@@ -7,14 +15,30 @@ class Result extends Component {
     this.state = {}
   }
 
+  capitalizeFirstLetter = (string) => {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  }
+
   render() {
     return (
-      <div className='container'>
+      <div className='container-small'>
 
         {this.props.result ?
-          <h3>
-            {JSON.stringify(this.props.result)}
-          </h3> :
+          <Table selectable={false}>
+            <TableBody displayRowCheckbox={false}>
+              {Object.keys(this.props.result).map((key, index) => {
+                if (key !== 'feasible' && key != 'bounded') {
+
+                  return <TableRow key={index}>
+                    <TableHeaderColumn>{this.capitalizeFirstLetter(key)}</TableHeaderColumn>
+                    <TableRowColumn>{this.props.result[key]}</TableRowColumn>
+                  </TableRow>
+                } else {
+                  return null
+                }
+              })}
+            </TableBody>
+          </Table> :
           <div>
             <h3 className='invalid-input-header'>
               Nieprawidłowe dane

@@ -22,11 +22,11 @@ const createModel = input => {
   else {
 
     let constraints = {},
-        vars = {}
+      vars = {}
 
 
     input.cuts.forEach((cut, i) => {
-      constraints[`cut${i}`] = {min: cut.nOrdered}
+      constraints[`cut${i}`] = { min: cut.nOrdered }
     });
 
     input.configs.forEach((config, i) => {
@@ -42,7 +42,7 @@ const createModel = input => {
     })
 
     //TODO: Create proper model for solver
-    let model =  {
+    let model = {
       optimize: "waste",
       opType: "min",
       constraints: constraints,
@@ -75,6 +75,8 @@ class Solver extends React.Component {
     if (nextProps.input !== undefined && nextProps.input !== prevState.input) {
       const model = createModel(nextProps.input)
       const output = model ? solver.Solve(model) : null
+      console.log(output)
+
       nextProps.setResult(output)
 
       return {
@@ -90,7 +92,7 @@ class Solver extends React.Component {
 
 
   render() {
-    console.log(this.state.model)
+
     return (
       <div>
 

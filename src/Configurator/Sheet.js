@@ -82,7 +82,7 @@ class Sheet extends Component {
 
   render() {
     return (
-      <div className='container'>
+      <div className='container-small'>
         <DropDownMenu value={1} onChange={this.handleChange}>
           <MenuItem value={1} primaryText="Arkusz 1" />
         </DropDownMenu>
