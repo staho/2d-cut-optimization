@@ -24,7 +24,7 @@ class Result extends Component {
       <div className='container-small'>
 
         {this.props.result ?
-          <Table selectable={false}>
+          <Table selectable={false} fixedHeader={false} showRowHover={true}>
             <TableBody displayRowCheckbox={false}>
               {Object.keys(this.props.result).map((key, index) => {
                 if (key !== 'feasible' && key != 'bounded') {

@@ -251,7 +251,7 @@ class Cuts extends Component {
 
     return (
       <div className='container'>
-        <Table selectable={false}>
+        <Table selectable={false} fixedHeader={false}>
           <TableHeader
             displaySelectAll={false}
             adjustForCheckbox={false}
@@ -264,7 +264,7 @@ class Cuts extends Component {
               <TableHeaderColumn>Zamówiona ilość</TableHeaderColumn>
             </TableRow>
           </TableHeader>
-          <TableBody displayRowCheckbox={false}>
+          <TableBody displayRowCheckbox={false} showRowHover={true}>
             {createTable()}
           </TableBody>
         </Table>

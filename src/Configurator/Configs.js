@@ -341,7 +341,7 @@ class Configs extends Component {
     return (
       <div className='container'>
 
-        <Table selectable={false}>
+        <Table selectable={false} fixedHeader={false}>
           <TableHeader
             displaySelectAll={false}
             adjustForCheckbox={false}
@@ -353,7 +353,7 @@ class Configs extends Component {
               <TableHeaderColumn>Odpad</TableHeaderColumn>
             </TableRow>
           </TableHeader>
-          <TableBody displayRowCheckbox={false}>
+          <TableBody displayRowCheckbox={false} showRowHover={true}>
 
             {createTable().map((row, index) => {
               return <TableRow key={index}>
