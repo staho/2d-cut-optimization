@@ -43,7 +43,6 @@ const createModel = input => {
       ints[`x${i}`] = 1
     })
 
-    //TODO: Create proper model for solver
     let model = {
       optimize: "waste",
       opType: "min",
