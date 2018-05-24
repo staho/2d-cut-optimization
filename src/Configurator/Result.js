@@ -27,7 +27,7 @@ class Result extends Component {
           <Table selectable={false} fixedHeader={false} showRowHover={true}>
             <TableBody displayRowCheckbox={false}>
               {Object.keys(this.props.result).map((key, index) => {
-                if (key !== 'feasible' && key != 'bounded') {
+                if (key !== 'feasible' && key !== 'bounded') {
 
                   return <TableRow key={index}>
                     <TableHeaderColumn>{this.capitalizeFirstLetter(key)}</TableHeaderColumn>

@@ -22,7 +22,8 @@ const createModel = input => {
   else {
 
     let constraints = {},
-      vars = {}
+      vars = {},
+      ints = {}
 
 
     input.cuts.forEach((cut, i) => {
@@ -39,6 +40,7 @@ const createModel = input => {
       obj['waste'] = input.wastes[i]
 
       vars[`x${i}`] = obj
+      ints[`x${i}`] = 1
     })
 
     //TODO: Create proper model for solver
@@ -46,7 +48,8 @@ const createModel = input => {
       optimize: "waste",
       opType: "min",
       constraints: constraints,
-      variables: vars
+      variables: vars,
+      ints: ints
     }
     console.log(model)
     return model
