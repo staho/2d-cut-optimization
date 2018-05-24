@@ -27,11 +27,12 @@ class Result extends Component {
           <Table selectable={false} fixedHeader={false} showRowHover={true}>
             <TableBody displayRowCheckbox={false}>
               {Object.keys(this.props.result).map((key, index) => {
-                if (key !== 'feasible' && key != 'bounded') {
+                if (key !== 'feasible' && key !== 'bounded') {
 
                   return <TableRow key={index}>
-                    <TableHeaderColumn>{this.capitalizeFirstLetter(key)}</TableHeaderColumn>
-                    <TableRowColumn>{this.props.result[key]}</TableRowColumn>
+                    <TableHeaderColumn>{key === 'result' ? 'Całkowity odpad' :
+                      `Konfiguracja ${key.charAt(1)}.`}</TableHeaderColumn>
+                    <TableRowColumn>{key === 'result' ? `${this.props.result[key]} zł` : `x ${this.props.result[key]}`}</TableRowColumn>
                   </TableRow>
                 } else {
                   return null

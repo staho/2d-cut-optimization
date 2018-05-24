@@ -41,7 +41,6 @@ const createModel = input => {
       vars[`x${i}`] = obj
     })
 
-    //TODO: Create proper model for solver
     let model = {
       optimize: "waste",
       opType: "min",
